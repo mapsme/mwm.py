@@ -2,14 +2,14 @@
 from .mwmfile import MWMFile
 from datetime import datetime
 
-# Unprocessed sections: geomN, trgN, idx, sdx (search index), addr (search address), offs (feature offsets - succinct)
-# Routing sections: mercedes (matrix), daewoo (edge data), infinity (edge id), skoda (shortcuts), chrysler (cross context), ftseg, node2ftseg
-# (these mostly are succinct structures, except chrysler and node2ftseg, so no use trying to load them here)
+__version__ = '0.9.0'
+
+# Unprocessed sections: geomN, trgN, idx, sdx (search index),
+# addr (search address), offs (feature offsets - succinct)
 
 # TODO:
 # - Predictive reading of LineStrings
 # - Find why polygon geometry is incorrect in iter_features()
-# - Find feature ids in the 'dat' section, or find a way to read the 'offs' section
 
 
 class MWM(MWMFile):
@@ -43,10 +43,11 @@ class MWM(MWMFile):
         fmt = self.read_varuint() + 1
         version = self.read_varuint()
         if version < 161231:
-            version = datetime(2000 + int(version / 10000), int(version / 100) % 100, version % 100)
+            vdate = datetime(2000 + int(version / 10000), int(version / 100) % 100, version % 100)
         else:
-            version = datetime.fromtimestamp(version)
-        return {'fmt': fmt, 'version': version}
+            vdate = datetime.fromtimestamp(version)
+            version = int(vdate.strftime('%y%m%d'))
+        return {'fmt': fmt, 'version': version, 'date': vdate}
 
     def read_header(self):
         """Reads 'header' section."""
