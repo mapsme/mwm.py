@@ -4,7 +4,7 @@ import os.path
 import random
 import json
 import argparse
-from mwm import MWM, Osm2Ft
+from . import MWM, Osm2Ft
 
 
 def dump_mwm(args):
@@ -104,7 +104,7 @@ def main():
     parser_find.add_argument('-t', dest='type', help='look inside types ("-t hwtag" will find all hwtags-*)')
     parser_find.add_argument('-et', dest='exact_type', help='look for a type ("-et shop won\'t find shop-chemist)')
     parser_find.add_argument('-n', dest='name', help='look inside names, case-sensitive ("-n Starbucks" for all starbucks)')
-    parser_find.add_argument('-in', dest='iname', help='look inside names, case-insensitive ("-in star" will find Starbucks)')
+    parser_find.add_argument('-in', '-ni', dest='iname', help='look inside names, case-insensitive ("-in star" will find Starbucks)')
     parser_find.add_argument('-m', dest='meta', help='look for a metadata key ("m flats" for features with flats)')
     parser_find.add_argument('-id', dest='fid', type=int, help='look for a feature id ("-id 1234 for feature #1234)')
     parser_find.set_defaults(func=find_feature)
