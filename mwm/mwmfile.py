@@ -3,7 +3,7 @@ import struct
 import math
 
 
-class OsmIdCode:
+class OsmIdCode(object):
     NODE = 0x4000000000000000
     WAY = 0x8000000000000000
     RELATION = 0xC000000000000000
