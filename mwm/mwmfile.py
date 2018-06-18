@@ -3,6 +3,63 @@ import struct
 import math
 
 
+class OsmIdCode:
+    NODE = 0x4000000000000000
+    WAY = 0x8000000000000000
+    RELATION = 0xC000000000000000
+    RESET = ~(NODE | WAY | RELATION)
+
+    @staticmethod
+    def is_node(code):
+        return code & OsmIdCode.NODE == OsmIdCode.NODE
+
+    @staticmethod
+    def is_way(code):
+        return code & OsmIdCode.WAY == OsmIdCode.WAY
+
+    @staticmethod
+    def is_relation(code):
+        return code & OsmIdCode.RELATION == OsmIdCode.RELATION
+
+    @staticmethod
+    def get_type(code):
+        if OsmIdCode.is_relation(code):
+            return 'r'
+        elif OsmIdCode.is_node(code):
+            return 'n'
+        elif OsmIdCode.is_way(code):
+            return 'w'
+        return None
+
+    @staticmethod
+    def get_id(code):
+        return code & OsmIdCode.RESET
+
+    @staticmethod
+    def unpack(num):
+        typ = OsmIdCode.get_type(num)
+        if typ is None:
+            return None
+        return typ, OsmIdCode.get_id(num)
+
+    @staticmethod
+    def pack(osm_type, osm_id, int64=False):
+        if osm_type is None or len(osm_type) == 0:
+            return None
+        typ = osm_type[0].lower()
+        if typ == 'r':
+            result = osm_id | OsmIdCode.RELATION
+        elif typ == 'w':
+            result = osm_id | OsmIdCode.WAY
+        elif typ == 'n':
+            result = osm_id | OsmIdCode.NODE
+        else:
+            return None
+        if int64 and result >= 2**63:
+            result = -1 - (result ^ (2**64 - 1))
+        return result
+
+
 class MWMFile(object):
     # coding/multilang_utf8_string.cpp
     languages = ["default",
@@ -86,23 +143,12 @@ class MWMFile(object):
         AREA = 1 << 6
         POINT_EX = 3 << 5
 
-    class OsmIdCode:
-        NODE = 0x4000000000000000
-        WAY = 0x8000000000000000
-        RELATION = 0xC000000000000000
-        RESET = ~(NODE | WAY | RELATION)
-
     @staticmethod
     def unpack_osmid(num):
-        if num & MWMFile.OsmIdCode.RELATION == MWMFile.OsmIdCode.RELATION:
-            typ = 'r'
-        elif num & MWMFile.OsmIdCode.WAY == MWMFile.OsmIdCode.WAY:
-            typ = 'w'
-        elif num & MWMFile.OsmIdCode.NODE == MWMFile.OsmIdCode.NODE:
-            typ = 'n'
-        else:
+        typ = OsmIdCode.get_type(num)
+        if typ is None:
             return None
-        return typ, num & MWMFile.OsmIdCode.RESET
+        return typ, OsmIdCode.get_id(num)
 
     def read_osmid(self, as_tuple=True):
         osmid = self.read_uint(8)

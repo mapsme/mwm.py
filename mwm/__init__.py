@@ -1,2 +1,3 @@
-from .mwm import MWM, Osm2Ft, __version__
-from .mwmfile import MWMFile
+from .mwmfile import MWMFile, OsmIdCode
+from .mwm import MWM, __version__
+from .osm2ft import Osm2Ft

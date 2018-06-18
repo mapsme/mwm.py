@@ -1,8 +1,9 @@
 # MWM Reader Module
 from .mwmfile import MWMFile
 from datetime import datetime
+import os
 
-__version__ = '0.9.0'
+__version__ = '0.10.0'
 
 # Unprocessed sections: geomN, trgN, idx, sdx (search index),
 # addr (search address), offs (feature offsets - succinct)
@@ -20,17 +21,23 @@ class MWM(MWMFile):
                 "turn_lanes", "turn_lanes_forward", "turn_lanes_backward", "email", "postcode",
                 "wikipedia", "maxspeed", "flats", "height", "min_height",
                 "denomination", "building_levels", "test_id", "ref:sponsored", "price_rate",
-                "rating", "fuel", "routes"]
+                "rating", "banner_url", "level"]
 
-    regiondata = ["languages", "driving", "timezone", "addr_fmt", "phone_fmt", "postcode_fmt", "holidays", "housenames"]
+    regiondata = ["languages", "driving", "timezone", "addr_fmt", "phone_fmt",
+                  "postcode_fmt", "holidays", "housenames"]
 
     def __init__(self, f):
         MWMFile.__init__(self, f)
         self.read_tags()
         self.read_header()
         self.type_mapping = []
+        self.read_types(os.path.join(
+            os.getcwd(), os.path.dirname(__file__), 'types.txt'))
 
     def read_types(self, filename):
+        if not os.path.exists(filename):
+            return
+        self.type_mapping = []
         with open(filename, 'r') as ft:
             for line in ft:
                 if len(line.strip()) > 0:
@@ -268,39 +275,3 @@ class MWM(MWMFile):
                 raise Exception('Feature parsing error, read too much')
             yield feature
             self.f.seek(next_feature)
-
-
-class Osm2Ft(MWMFile):
-    def __init__(self, f, ft2osm=False, tuples=True):
-        MWMFile.__init__(self, f)
-        self.read(ft2osm, tuples)
-
-    def read(self, ft2osm=False, tuples=True):
-        """Reads mwm.osm2ft file, returning a dict of feature id <-> osm way id."""
-        count = self.read_varuint()
-        self.data = {}
-        self.ft2osm = ft2osm
-        for i in range(count):
-            osmid = self.read_osmid(tuples)
-            fid = self.read_uint(4)
-            self.read_uint(4)  # filler
-            if osmid is not None:
-                if ft2osm:
-                    self.data[fid] = osmid
-                else:
-                    self.data[osmid] = fid
-
-    def __getitem__(self, k):
-        return self.data.get(k)
-
-    def __repr__(self):
-        return '{} with {} items'.format('ft2osm' if self.ft2osm else 'osm2ft', len(self.data))
-
-    def __len__(self):
-        return len(self.data)
-
-    def __contains__(self, k):
-        return k in self.data
-
-    def __iter__(self):
-        return iter(self.data)
