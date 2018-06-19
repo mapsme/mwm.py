@@ -2,6 +2,9 @@
 
 ## master branch
 
+* Better support for Python 2.7.
+* Encoding and decoding int64 negative ids.
+
 ## 0.10.0
 
 _Released 2018-06-18_

@@ -37,6 +37,8 @@ class OsmIdCode(object):
 
     @staticmethod
     def unpack(num):
+        if num < 0:
+            num = (-1 - num) ^ (2**64 - 1)
         typ = OsmIdCode.get_type(num)
         if typ is None:
             return None

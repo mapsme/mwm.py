@@ -106,7 +106,7 @@ def ft2osm(args):
 
 
 def decode_id(args):
-    if args.id.isdigit():
+    if args.id.isdigit() or args.id.startswith('-'):
         osm_id = OsmIdCode.unpack(int(args.id))
         if osm_id is None:
             print('That is not a valid identifier')
@@ -118,7 +118,7 @@ def decode_id(args):
     else:
         m = re.search(r'/(node|way|relation)/(\d+)', args.id)
         if m:
-            print(OsmIdCode.pack(m.group(1), int(m.group(2))))
+            print(OsmIdCode.pack(m.group(1), int(m.group(2)), args.int64))
         else:
             print('Please specify an URL to OSM object on its website')
             return 2
@@ -170,6 +170,8 @@ def main():
 
     parser_id = subparsers.add_parser('id', help='Decode or encode OSM ID')
     parser_id.add_argument('id', help='MWM internal OSM ID, or a link to OSM website')
+    parser_id.add_argument('-i', '--int64', action='store_true',
+                           help='Use int64 instead of uint64')
     parser_id.set_defaults(func=decode_id)
 
     parser_dump = subparsers.add_parser('gpx', help='Convert gps_track.dat to GPX')
