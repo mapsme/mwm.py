@@ -3,8 +3,6 @@ from .mwmfile import MWMFile
 from datetime import datetime
 import os
 
-__version__ = '0.10.0'
-
 # Unprocessed sections: geomN, trgN, idx, sdx (search index),
 # addr (search address), offs (feature offsets - succinct)
 
