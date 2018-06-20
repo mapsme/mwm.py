@@ -4,6 +4,7 @@
 
 * Better support for Python 2.7.
 * Encoding and decoding int64 negative ids.
+* Allow short form for id: `mwmtool id way/123456`.
 
 ## 0.10.0
 

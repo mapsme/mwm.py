@@ -116,7 +116,7 @@ def decode_id(args):
             print('https://www.openstreetmap.org/{}/{}'.format(
                 type_abbr[osm_id[0]], osm_id[1]))
     else:
-        m = re.search(r'/(node|way|relation)/(\d+)', args.id)
+        m = re.search(r'(node|way|relation)/(\d+)', args.id)
         if m:
             print(OsmIdCode.pack(m.group(1), int(m.group(2)), args.int64))
         else:
